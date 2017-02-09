@@ -5,8 +5,11 @@ Here are some exampeles of making music with arduino. In these projects there ar
 
 Sensors:
 Force Resistance Sensor: FSRs are sensors that allow you to detect physical pressure, squeezing and weight. 
+
 PIR Motion Sensor -Pyroelectric ("Passive") InfraRed Sensors: PIR sensors allow you to sense motion, almost always used to detect whether a human has moved in or out of the sensors range. 
+
 Thermocouple: thermocouples have no electronics inside them, they are simply made by welding together two metal wires. 
+
 IR Sensor: IR detectors are little microchips with a photocell that are tuned to listen to infrared light. They are almost always used for remote control detection - every TV and DVD player has one of these in the front to listen for the IR signal from the clicker.
 
 http://www.makeuseof.com/tag/musical-projects-arduino-beginners/
