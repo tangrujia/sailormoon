@@ -28,3 +28,10 @@ https://www.instructables.com/id/The-Arduino-OctoSynth/
 ### Proposal 
 ### Here is my musical instrument project proposal
 file:///Users/rujiatang/Desktop/visual%20interaction/musical%20instrument%20proposal.html
+
+The name of this project is Octatonic 
+
+This is an fun and simple version of piano. Using objects as keyboard.
+
+Each project produce a note and there are 8 notes.
+
