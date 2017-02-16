@@ -46,7 +46,7 @@ http://playground.arduino.cc/Main/CapacitiveSensor?from=Main.CapSense
 
 ####Code Resources 
 for making synths and implementing analog output from: http://playground.arduino.cc/Main/ArduinoSynth
-
+These are the open source on OctoSynth I found online. I am still trying to understand it. 
 
 Wavetable:
 
@@ -83,8 +83,7 @@ Pulse Width Modulation (PWM) essentially lets you generate square waves on a pin
 1.Set up PWM so that it is doing a very high frequency square wave.
 2.Set an interrupt that alters the duty cycle of the square wave. If we run the interrupt function on the same timer that is driving the PWM, then cunningly, for every cycle of the square wave, the interrupt is fired to set a new value to the square wave duty cycle, and voila, we have our direct digital synthesis.
 
-ISR(TIMER1_OVF_vect) 
-    {
+ISR(TIMER1_OVF_vect) {
       // update sample position (ignore overflow, as 
       // we use the top byte to index into a 256 byte buffer
       // and the overflow means it loops through the buffer)
@@ -96,6 +95,28 @@ ISR(TIMER1_OVF_vect)
 
       // write oscillator value to PWM duty cycle for pin 9
       OCR1A=getByteLevel(valOut0);
+    }
+ // interrupt for timer 1 overflow (pins 9 and 10)
+    // in this, we set the next value for the PWM for those pins
+    // ie. we set the sample value
+    ISR(TIMER1_OVF_vect) 
+    {
+      // update sample position (ignore overflow, as 
+      // we use the top byte to index into a 256 byte buffer
+      // and the overflow means it loops through the buffer)
+
+      //oscillator 0 update 
+      oscillators[0].phaseAccu+=oscillators[0].phaseStep;
+      int valOut0=curWave[oscillators[0].phaseAccu>>8]*oscillators[0].volume;
+
+      //oscillator 1 update 
+      oscillators[1].phaseAccu+=oscillators[1].phaseStep;
+      int valOut1=curWave[oscillators[1].phaseAccu>>8]*oscillators[1].volume;
+
+      int mixedVal=valOut0+valOut1;
+
+      // write to pin 9 duty cycle
+      OCR1A=getByteLevel(mixedVal);
     }
 
 
