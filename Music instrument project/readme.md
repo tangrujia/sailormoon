@@ -42,6 +42,8 @@ when two conductive objects touch — in my case, the object itself and human sk
 ####Sensor: 
 Capacitance Sensor / capacitance touch shield for Arduino 
 
+I already bought it from Adafruit. Haven't arrived yet. Will need to sole the shield on the arduino. 
+
 http://playground.arduino.cc/Main/CapacitiveSensor?from=Main.CapSense
 
 ####Code Resources 
