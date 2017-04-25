@@ -1,0 +1,93 @@
+#include <LiquidCrystal.h>
+//constant won't change:
+const int flexPin = A0;
+#include <Adafruit_NeoPixel.h>
+#ifdef __AVR__
+#include <avr/power.h>
+#endif
+#define PIN            9
+#define NUMPIXELS      1
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+int delayval = 100; // delay for half a second
+
+//constant will change:
+int count = 0; //counter of flex senor reading
+int value = 0; //value of flex seneor reading
+int flexState = 0;
+int lastFlexState = 0;
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+// the following variables are unsigned long's because the time, measured in miliseconds,
+// will quickly become a bigger number than can be stored in an int.
+
+unsigned long lastDebounceTime = 0; //the last time the output pin is toggled
+unsigned long debounceDelay = 1000; //the debounce time, increase if the output flickers
+
+void setup() {
+  pixels.begin(); // This initializes the NeoPixel library.
+  pixels.show(); 
+  pixels.clear();
+  Serial.begin(9600);
+  pinMode (flexPin, INPUT);
+  lcd.begin(16, 2);
+  lcd.print("Count");
+  lcd.setCursor(0, 1);
+  lcd.print(0);
+}
+
+void loop() {
+  value = analogRead(flexPin);
+  value = map(value, 300, 800, 0, 6);  //Map value to 0-6
+  if (value > 6) {
+    value = 6;
+  }
+  if (value == 2, 3, 4, 5) {
+    flexState = LOW;
+  }
+  if (value == 6) {
+    flexState = HIGH;
+  }
+  Serial.println(flexState); //Print value
+
+  if (flexState != lastFlexState && (millis() - lastDebounceTime > debounceDelay)) {
+    if (flexState == HIGH) {
+      lcd.setCursor(0, 1);
+      count++;
+      lcd.print(count);
+      activate();
+      lastDebounceTime = millis(); //set the current time
+      if (count%10==0){ 
+      complete(); 
+    }
+    }    
+    else {
+      allOff();
+      Serial.println("off");
+    }
+    delay(100);
+    lastFlexState = flexState;
+  }
+  
+}
+
+void allOff() {
+  for ( int i = 0; i < NUMPIXELS; i++ )
+    pixels.setPixelColor(i, 0, 0, 0 );
+    pixels.show();
+}
+
+void activate() {
+  for (int i = 0; i < NUMPIXELS; i++) {
+    pixels.setPixelColor(i, pixels.Color(0, 0, 150)); // Moderately bright green color.
+    pixels.setBrightness(100);  //sets brightness
+    pixels.show();  //turns on pixels  }
+  }
+}
+
+void complete(){
+  for (int i = 0; i < NUMPIXELS; i++) {
+    pixels.setPixelColor(i, pixels.Color(0, 150, 0)); // Moderately bright green color.
+    pixels.setBrightness(200);  //sets brightness
+    pixels.show();  //turns on pixels  }
+  }
+}
