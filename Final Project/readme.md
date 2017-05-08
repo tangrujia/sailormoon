@@ -5,8 +5,8 @@
 I want to find a way that could show where my hand is in the physical space on the screen.
 
 Possible approach: 
-  a cube of cap sensors
-  many distance sensors
+  *a cube of cap sensors
+  *many distance sensors
 Softwear Required:
-  Arduino 
-  Processing
+  *Arduino 
+  *Processing
