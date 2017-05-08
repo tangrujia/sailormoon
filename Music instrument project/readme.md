@@ -25,7 +25,7 @@ https://www.instructables.com/id/The-Arduino-OctoSynth/
 
 
 ##Homework2
-### Proposal 
+## Proposal 
 ### Here is my musical instrument project proposal
 
 The name of this project is Octatonic 
