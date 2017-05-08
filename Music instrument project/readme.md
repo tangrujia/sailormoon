@@ -79,48 +79,111 @@ PWM
 
 Pulse Width Modulation (PWM) essentially lets you generate square waves on a pin with a particular duty cycle. The frequency of these square waves can also be set, conveniently in the same units as we use for setting the speed of interrupts.
 
+## Final 
+#include <Melody.h>
 
-####direct digital synthesis
+const uint8_t speaker_pin = 2;
+const uint8_t note_button = A0;
 
-1.Set up PWM so that it is doing a very high frequency square wave.
-2.Set an interrupt that alters the duty cycle of the square wave. If we run the interrupt function on the same timer that is driving the PWM, then cunningly, for every cycle of the square wave, the interrupt is fired to set a new value to the square wave duty cycle, and voila, we have our direct digital synthesis.
+Melody player(speaker_pin);
 
-ISR(TIMER1_OVF_vect) {
-      // update sample position (ignore overflow, as 
-      // we use the top byte to index into a 256 byte buffer
-      // and the overflow means it loops through the buffer)
+byte octav = 5;
+uint8_t note = 0;
+int prev_button_value = 0;
 
-      //oscillator 0 update position 
-      oscillators[0].phaseAccu+=oscillators[0].phaseStep;
-      //oscillator 0 read wave value from the wavetable at that position
-      int valOut0=curWave[oscillators[0].phaseAccu>>8]*oscillators[0].volume;
+void setup()
+{
+  Serial.begin(9600);
+  pinMode(speaker_pin, OUTPUT);
+  pinMode(note_button, INPUT);
+}
 
-      // write oscillator value to PWM duty cycle for pin 9
-      OCR1A=getByteLevel(valOut0);
-    }
- // interrupt for timer 1 overflow (pins 9 and 10)
-    // in this, we set the next value for the PWM for those pins
-    // ie. we set the sample value
-    ISR(TIMER1_OVF_vect) 
+// the loop routine runs over and over again forever:
+void loop() {
+  
+  int value = analogRead(note_button);
+  
+  if(value > 100)
+  {
+    if(value > 1000)
     {
-      // update sample position (ignore overflow, as 
-      // we use the top byte to index into a 256 byte buffer
-      // and the overflow means it loops through the buffer)
-
-      //oscillator 0 update 
-      oscillators[0].phaseAccu+=oscillators[0].phaseStep;
-      int valOut0=curWave[oscillators[0].phaseAccu>>8]*oscillators[0].volume;
-
-      //oscillator 1 update 
-      oscillators[1].phaseAccu+=oscillators[1].phaseStep;
-      int valOut1=curWave[oscillators[1].phaseAccu>>8]*oscillators[1].volume;
-
-      int mixedVal=valOut0+valOut1;
-
-      // write to pin 9 duty cycle
-      OCR1A=getByteLevel(mixedVal);
+      note = 0;
     }
-
-
-
+    else if(value > 950)
+    {
+      note = 2;
+    }
+    else if(value > 920)
+    {
+      note = 4;
+    }
+    else if(value > 880)
+    {
+      note = 5;
+    }
+    else if(value > 850)
+    {
+      note = 7;
+    }
+    else if(value > 810)
+    {
+      note = 9;
+    }
+    else if(value > 780)
+    {
+      note = 11;
+    }
+    else if(value > 750)
+    {
+      if(note != 20)
+      {
+        octav -= 1;
+        note = 20;
+      }
+      
+      return;
+    }
+    else if(value > 730)
+    {
+      if(note != 21)
+      {
+        octav += 1;
+        note = 21;
+      }
+      
+      return;
+    }
+    else
+    {
+      return;
+    }
+    
+    byte note_byte = (octav * 16) + note;
+    
+    Serial.print("{0x");
+    Serial.print(note_byte, HEX);
+    Serial.print(", 0x04},");
+    Serial.println("");
+    Serial.print("{0xFF, 0x64},");
+    
+    tone(speaker_pin, player.getNoteFrequency(note_byte));
+    
+    prev_button_value = value;
+    
+    while(value > 100)
+    {
+      delay(100);
+      value = analogRead(note_button);
+      
+      if(abs(value - prev_button_value) > 20) break; // change note
+    }
+    
+    
+    noTone(speaker_pin);
+    
+    Serial.println("");
+  }
+  
+  delay(100);
+}
 
