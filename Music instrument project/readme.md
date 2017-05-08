@@ -80,110 +80,47 @@ PWM
 Pulse Width Modulation (PWM) essentially lets you generate square waves on a pin with a particular duty cycle. The frequency of these square waves can also be set, conveniently in the same units as we use for setting the speed of interrupts.
 
 ## Final 
-#include <Melody.h>
+int pingPin = 11;
+long duration;
+long distance;
+int buttomstatus=0;
+int buttom=6;
 
-const uint8_t speaker_pin = 2;
-const uint8_t note_button = A0;
-
-Melody player(speaker_pin);
-
-byte octav = 5;
-uint8_t note = 0;
-int prev_button_value = 0;
-
-void setup()
-{
+void setup() {
+  // put your setup code here, to run once:
   Serial.begin(9600);
-  pinMode(speaker_pin, OUTPUT);
-  pinMode(note_button, INPUT);
+  pinMode(buttom,INPUT);
 }
 
-// the loop routine runs over and over again forever:
 void loop() {
-  
-  int value = analogRead(note_button);
-  
-  if(value > 100)
-  {
-    if(value > 1000)
-    {
-      note = 0;
-    }
-    else if(value > 950)
-    {
-      note = 2;
-    }
-    else if(value > 920)
-    {
-      note = 4;
-    }
-    else if(value > 880)
-    {
-      note = 5;
-    }
-    else if(value > 850)
-    {
-      note = 7;
-    }
-    else if(value > 810)
-    {
-      note = 9;
-    }
-    else if(value > 780)
-    {
-      note = 11;
-    }
-    else if(value > 750)
-    {
-      if(note != 20)
-      {
-        octav -= 1;
-        note = 20;
-      }
-      
-      return;
-    }
-    else if(value > 730)
-    {
-      if(note != 21)
-      {
-        octav += 1;
-        note = 21;
-      }
-      
-      return;
-    }
-    else
-    {
-      return;
-    }
-    
-    byte note_byte = (octav * 16) + note;
-    
-    Serial.print("{0x");
-    Serial.print(note_byte, HEX);
-    Serial.print(", 0x04},");
-    Serial.println("");
-    Serial.print("{0xFF, 0x64},");
-    
-    tone(speaker_pin, player.getNoteFrequency(note_byte));
-    
-    prev_button_value = value;
-    
-    while(value > 100)
-    {
-      delay(100);
-      value = analogRead(note_button);
-      
-      if(abs(value - prev_button_value) > 20) break; // change note
-    }
-    
-    
-    noTone(speaker_pin);
-    
-    Serial.println("");
-  }
-  
-  delay(100);
-}
+  // put your main code here, to run repeatedly:
+  pinMode(pingPin, OUTPUT); 
+  digitalWrite(pingPin, LOW);        // Ensure pin is low
+  delayMicroseconds(2);
+  digitalWrite(pingPin, HIGH);       // Start ranging
+  delayMicroseconds(5);              //   with 5 microsecond burst
+  digitalWrite(pingPin, LOW);        // End ranging
+  pinMode(pingPin, INPUT);           // Set pin to INPUT
+  duration = pulseIn(pingPin, HIGH); // Read echo pulse
+  distance = duration / 74 / 2;        // Convert to inches
 
+int notes[7] = {261, 294, 329, 349, 392, 440, 494}; //Putting several notes in an array
+  //          mid C  D   E   F   G   A   B
+
+  buttomstatus = digitalRead(buttom); //defining force as FSR data
+
+Serial.println(buttomstatus);
+
+  if (distance < 0 || distance > 50||buttomstatus==LOW) { //if not presed and not in front
+
+    noTone(12); //dont play music
+
+  }
+
+  else if (buttomstatus==HIGH) {  //if pressed
+
+    int sound = map(distance, 0, 20, 0, 6);  //map distance to the array of notes
+    tone(12, notes[sound]);  //call a certain note depending on distanc
+  }
+
+}
